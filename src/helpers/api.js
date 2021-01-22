@@ -3,7 +3,7 @@ import axios from 'axios';
 const accessKey = 'a4ccf188a535d74355cc5968008e34df';
 
 const api = axios.create({
-  baseURL: 'http://api.weatherstack.com/'
+  baseURL: 'https://cors-anywhere.herokuapp.com/http://api.weatherstack.com/'
 });
 
 export const getCurrentWeather = async (query) => {
