@@ -18,10 +18,8 @@ export default function WeatherTab() {
         .then(function (result) {
           if (result.state === "granted") {
             navigator.geolocation.getCurrentPosition(handleSuccess);
-
           } else if (result.state === "prompt") {
             navigator.geolocation.getCurrentPosition(handleSuccess, handleErrors);
-
           } else if (result.state === "denied") {
             alert("Allow the browser to use your location or choose the city manually!");
           }
@@ -52,7 +50,7 @@ export default function WeatherTab() {
     const coords = latitude + ',' + longitude;
 
     if (latitude && longitude) {
-      if(window.confirm('Proceed and show weather for your current location?')){
+      if( window.confirm('Proceed and show weather for your current location?' )) {
         const weather = await getCoordinatesWeather(coords);
         setCurrentWeather(weather.current);
         setCity(`${weather.location.name}, ${weather.location.country}`);
