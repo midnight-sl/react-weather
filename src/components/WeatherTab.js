@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { getCurrentWeather } from '../helpers/api'
+import { getCurrentWeather } from '../helpers/api';
+import '../styles/Weather.css'
 
 
 export default function WeatherTab() {
@@ -25,7 +26,6 @@ export default function WeatherTab() {
             alert("Allow the browser to use your location or choose the city manually!");
           }
           result.onchange = function () {
-            console.log(result.state);
           };
         });
     } else {
@@ -33,6 +33,11 @@ export default function WeatherTab() {
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
+
+  useEffect(() => {
+    sessionStorage.setItem(`${city}-weather`, JSON.stringify(currentWeather));
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  },[currentWeather])
 
   const handleErrors = (err) => {
     console.warn(`ERROR(${err.code}): ${err.message}`);
@@ -50,9 +55,7 @@ export default function WeatherTab() {
       if(window.confirm('Proceed and show weather for your current location?')){
         const weather = await getCoordinatesWeather(coords);
         setCurrentWeather(weather.current);
-    
-      console.log('current city weather', weather);
-      setCity(`${weather.location.name}, ${weather.location.country}`);
+        setCity(`${weather.location.name}, ${weather.location.country}`);
       }
     }
     
@@ -61,10 +64,17 @@ export default function WeatherTab() {
   const handleShowWeather = async(event) => {
     event.preventDefault();
     if (!!city.trim()) {
-      const weather = await getCityWeather();
-      console.log(weather, "OK???");
-      setCurrentWeather(weather.current);
-      return weather;
+
+      const weatherFromStorage =  JSON.parse(sessionStorage.getItem(`${city}-weather`));
+      if (!!weatherFromStorage) {
+        setCurrentWeather(weatherFromStorage);
+
+      } else {
+        const weather = await getCityWeather();
+        setCurrentWeather(weather.current);
+        return weather;
+      }
+      
     } else {
       alert('Write correct city')
     }
@@ -123,10 +133,10 @@ export default function WeatherTab() {
 
       return <div className='weather-block'>
         <img src={iconLocationString} alt='weather icon'/>
-        <p>Current weather in {city} is {temp} and {description.toLowerCase()}. Feels like {feelTemp} degrees. Humidity is {humidity}%. Wind is {windToShow}, {windSpeed} km/hour</p>
+        <p className='description'>Current weather in {city} is {temp} degrees and {description.toLowerCase()}. Feels like {feelTemp} degrees.</p><p className='description'> Humidity is {humidity}%. Wind is {wind.length === 3 ? wind : windToShow}, {windSpeed} km/hour</p>
       </div>
     } else {
-      return <p>Please wait. Still loading...</p>
+      return <p>Enter name of the city to show the weather</p>
     }
   }
 
@@ -140,9 +150,7 @@ export default function WeatherTab() {
           <input type="text" name="city" value={city} onChange={event => setCity(event.target.value)} />
           <button type="submit" onClick={handleShowWeather}>Show Weather</button>
         </form>
-      <div>
-        {renderWeatherBlock()}
-      </div>
+      {renderWeatherBlock()}
       </div>
     </div>
   );
