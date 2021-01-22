@@ -31,6 +31,7 @@ export default function WeatherTab() {
     } else {
       alert("Sorry location is not available! Choose the city manually!");
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
 
   const handleErrors = (err) => {
@@ -44,11 +45,17 @@ export default function WeatherTab() {
     setLongitude(crd.longitude);
 
     const coords = latitude + ',' + longitude;
-    const weather = await getCoordinatesWeather(coords);
-    setCurrentWeather(weather.current);
+
+    if (latitude && longitude) {
+      if(window.confirm('Proceed and show weather for your current location?')){
+        const weather = await getCoordinatesWeather(coords);
+        setCurrentWeather(weather.current);
     
-    console.log('current city weather', weather);
-    setCity(`${weather.location.name}, ${weather.location.country}`);
+      console.log('current city weather', weather);
+      setCity(`${weather.location.name}, ${weather.location.country}`);
+      }
+    }
+    
   }
 
   const handleShowWeather = async(event) => {
@@ -76,16 +83,47 @@ export default function WeatherTab() {
   const renderWeatherBlock = () => {
     if (currentWeather){
       const temp = currentWeather.temperature;
-      const feelTemp = currentWeather.feelsLike;
+      const feelTemp = currentWeather.feelslike;
       const humidity = currentWeather.humidity;
       const description = currentWeather.weather_descriptions[0];
       const iconLocationString = currentWeather.weather_icons[0];
       const wind = currentWeather.wind_dir;
       const windSpeed = currentWeather.wind_speed;
 
-      return <div>
+      let windToShow;
+      switch (wind) {
+        case 'N':
+          windToShow = 'North';
+          break;
+        case 'NE':
+          windToShow = 'Northeast';
+          break;
+        case 'E':
+          windToShow = 'East';
+          break;
+        case 'SE':
+          windToShow = 'Southeast';
+          break;
+        case 'S':
+          windToShow = 'South';
+          break;
+        case 'SW':
+          windToShow = 'Southwest';
+          break;
+        case 'W':
+          windToShow = 'West';
+          break;
+        case 'NW':
+          windToShow = 'Northwest';
+          break;
+        default:
+          windToShow ='absent';
+      }
+      
+
+      return <div className='weather-block'>
         <img src={iconLocationString} alt='weather icon'/>
-        <p>Current weather in {city} is {temp} and {description.toLowerCase()}. Feels like {feelTemp} degrees. Humidity is {humidity}%. Wind is {wind}, {windSpeed} km/hour</p>
+        <p>Current weather in {city} is {temp} and {description.toLowerCase()}. Feels like {feelTemp} degrees. Humidity is {humidity}%. Wind is {windToShow}, {windSpeed} km/hour</p>
       </div>
     } else {
       return <p>Please wait. Still loading...</p>
@@ -99,7 +137,7 @@ export default function WeatherTab() {
       </div>
       <div className="choose-city">
         <form>
-          <input type="text" name="city" placeholder="City" onChange={event => setCity(event.target.value)} />
+          <input type="text" name="city" value={city} onChange={event => setCity(event.target.value)} />
           <button type="submit" onClick={handleShowWeather}>Show Weather</button>
         </form>
       <div>
