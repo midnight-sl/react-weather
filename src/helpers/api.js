@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const accessKey = 'a4ccf188a535d74355cc5968008e34df';
+const accessKey = 'YOUR_PERSONAL_ACCESS_KEY';
 
 const api = axios.create({
   baseURL: 'https://cors-anywhere.herokuapp.com/http://api.weatherstack.com/'
